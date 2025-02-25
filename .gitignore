@@ -1,0 +1,9 @@
+# Ignorer les fichiers CSV spécifiques
+all_communities_data.csv
+marches_publics_normalized_data.csv
+selected_communities_data.csv
+subventions_normalized_data.csv
+20230823-communes-departement-region.csv
+StockEtablissement_utf8.csv
+.DS_Store
+
