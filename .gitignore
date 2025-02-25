@@ -5,5 +5,7 @@ selected_communities_data.csv
 subventions_normalized_data.csv
 20230823-communes-departement-region.csv
 StockEtablissement_utf8.csv
+Subvention_normalized_data_with_NAF.csv
 .DS_Store
+.ipynb_checkpoints/
 
