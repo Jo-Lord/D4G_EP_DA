@@ -49,14 +49,14 @@ def classify_id(value, nom_beneficiaire):
     
     siret, siren, status = clean_and_check_length(value)
     if status == 1 or status == 2:
-        return siret, siren, nom_beneficiaire, status  # Cas où value est un SIRET ou SIREN
+        return siret, siren, nom_beneficiaire  # Cas où value est un SIRET ou SIREN
 
     # Si 'value' ne correspond à un SIRET ou SIREN, on vérifie 'nom_beneficiaire'
     if not pd.isna(nom_beneficiaire):
         # Si nom_beneficiaire est une chaîne de chiffres, on effectue la même vérification
         siret, siren, status = clean_and_check_length(nom_beneficiaire)
         if status == 1:
-            return nom_beneficiaire, None, value, 4  # nom_beneficiaire est un SIRET
+            return nom_beneficiaire, None, value  # nom_beneficiaire est un SIRET
         elif status == 2:
-            return None, nom_beneficiaire, value, 5  # nom_beneficiaire est un SIREN
-    return None, None, nom_beneficiaire, 3  # Si aucune correspondance, retourner nom_beneficiaire tel quel
+            return None, nom_beneficiaire, value  # nom_beneficiaire est un SIREN
+    return None, None, nom_beneficiaire  # Si aucune correspondance, retourner nom_beneficiaire tel quel

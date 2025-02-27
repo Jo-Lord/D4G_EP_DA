@@ -8,4 +8,5 @@ StockEtablissement_utf8.csv
 Subvention_normalized_data_with_NAF.csv
 .DS_Store
 .ipynb_checkpoints/
-
+__pycache__/
+*.pyc
