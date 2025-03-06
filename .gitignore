@@ -10,3 +10,8 @@ Subvention_normalized_data_with_NAF.csv
 .ipynb_checkpoints/
 __pycache__/
 *.pyc
+
+2025-02-25_cpv_2008_fr.xls
+*.csv:Zone.Identifier
+*.xls:Zone.Identifier
+*.xlsx:Zone.Identifier
