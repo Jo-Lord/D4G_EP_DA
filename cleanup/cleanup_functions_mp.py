@@ -154,7 +154,7 @@ def cpv_to_long(cpv):
 
     return pd.concat([cpv_2, cpv_3, cpv_4, cpv_5, cpv_8, cpv_10], ignore_index=True)
 
-def clean_mp_normalized(mp, cpv_long, missing_string='Unknown'):
+def create_mp_staging(mp, cpv_long, missing_string='Unknown'):
     """Nettoie toutes les colonnes du dataframe des marchés publics normalisés."""
 
     # Setup
@@ -198,10 +198,10 @@ def clean_mp_normalized(mp, cpv_long, missing_string='Unknown'):
     # print("     After dropping above 100 million:", len(mp_clean))
 
     # Create a new column with whether the disclosure was mandatory
-    mp_clean['publication_requirement'] = pd.cut(
+    mp_clean['obligation_publication'] = pd.cut(
         mp_clean['montant'],
         bins=[-float('inf'), 40000, float('inf')],
-        labels=['Optional', 'Mandatory'],
+        labels=['Optionnel', 'Obligatoire'],
         right=False
     )
 
@@ -209,24 +209,24 @@ def clean_mp_normalized(mp, cpv_long, missing_string='Unknown'):
     print("Cleaning dates:", len(mp_clean))
     mp_clean = filter_valid_dates(mp_clean, 'datenotification')
     # mp_clean['notification_raw'] = mp_clean['datenotification']
-    mp_clean['notification_datetime'] = pd.to_datetime(mp_clean['datenotification'], errors='coerce')
-    mp_clean['notification_year'] = mp_clean['notification_datetime'].dt.year.fillna(-1).astype(int)
+    mp_clean['datenotification'] = pd.to_datetime(mp_clean['datenotification'], errors='coerce')
+    mp_clean['datenotification_annee'] = mp_clean['datenotification'].dt.year.fillna(-1).astype(int)
     print("    After removing non valid dates from notification:", len(mp_clean))
 
     ### 4. Clean datepublicationdonnees
     print("Cleaning datenotification:", len(mp_clean))
     mp_clean = filter_valid_dates(mp_clean, 'datepublicationdonnees')
     # mp_clean['publication_raw'] = mp_clean['datepublicationdonnees']
-    mp_clean['publication_datetime'] = pd.to_datetime(mp_clean['datepublicationdonnees'], errors='coerce')
-    mp_clean['publication_year'] = mp_clean['publication_datetime'].dt.year.fillna(-1).astype(int)
+    mp_clean['datepublication'] = pd.to_datetime(mp_clean['datepublicationdonnees'], errors='coerce')
+    mp_clean['datepublication_annee'] = mp_clean['datepublication'].dt.year.fillna(-1).astype(int)
     print("    After removing non valid dates from publication:", len(mp_clean))
 
     # Check on the delay to publish
-    mp_clean['publication_delay_day'] = (mp_clean['publication_datetime'] - mp_clean['notification_datetime']).dt.days
+    mp_clean['delaipublication_jours'] = (mp_clean['datepublication'] - mp_clean['datenotification']).dt.days
 
     # Drop rows with dates before 2016
-    mp_clean = mp_clean[mp_clean['publication_year'] >= 2016]
-    mp_clean = mp_clean[mp_clean['notification_year'] >= 2016]
+    mp_clean = mp_clean[mp_clean['datepublication_annee'] >= 2016]
+    mp_clean = mp_clean[mp_clean['datenotification_annee'] >= 2016]
     print(f"    After dropping rows before 2016: {len(mp_clean)}")
 
     ### 5. Buyer information
@@ -247,10 +247,10 @@ def clean_mp_normalized(mp, cpv_long, missing_string='Unknown'):
         return list(eval(str(seller_list)))
 
 
-    mp_clean['titulaires_list'] = mp_clean['titulaires'].map(clean_seller_list)
-    mp_clean['titulaires_count'] = mp_clean['titulaires_list'].map(len)
+    mp_clean['titulaires_liste_noms'] = mp_clean['titulaires'].map(clean_seller_list)
+    mp_clean['titulaires_nombre'] = mp_clean['titulaires_liste_noms'].map(len)
     # mp_clean['seller_name_list'] = mp_clean['titulaires']
-    mp_clean['titulaires_cleaned'] = mp_clean['titulaires'].str.replace(r"[\[\]']", "", regex=True)
+    # mp_clean['titulaires_cleaned'] = mp_clean['titulaires'].str.replace(r"[\[\]']", "", regex=True)
 
 
     # # TO DO: Add seller_siren and seller_sirene
@@ -323,12 +323,13 @@ def clean_mp_normalized(mp, cpv_long, missing_string='Unknown'):
     # print(f"    After dropping NaNs: {len(mp_clean)}")
 
     print(f"Share of dropped observations: {1 - len(mp_clean) / len(mp)}")
-    mp_clean = mp_clean[['acheteur_siren', 'acheteur_type', 'acheteur_nom','acheteur_sirene', 'titulaires_list', 'titulaires_count', 'titulaires_cleaned','objet', 'nature',
-       '_type', 'formeprix', 'lieuexecution_typecode', 'uid',
-       'montant', 'id', 'lieuexecution_code', 'dureemois',
-       'procedure', 'lieuexecution_nom',
-       'codecpv', 'cpv_8', 'cpv_2', 'cpv_2_label', 'cpv_8_label',
-       'publication_requirement', 'notification_datetime', 'notification_year',
-       'publication_datetime', 'publication_year', 'publication_delay_day'
-       ]]
+    mp_clean = mp_clean[['acheteur_siren', 'acheteur_type', 'acheteur_nom','acheteur_sirene',
+                         'titulaires_liste_noms', 'titulaires_nombre',
+                         'objet', 'nature', '_type', 'formeprix', 'lieuexecution_typecode', 'uid',
+                         'montant', 'id', 'lieuexecution_code', 'dureemois',
+                         'procedure', 'lieuexecution_nom',
+                         'codecpv', 'cpv_8', 'cpv_2', 'cpv_2_label', 'cpv_8_label',
+                         'obligation_publication', 'datenotification', 'datenotification_annee',
+                         'datepublication', 'datepublication_annee', 'delaipublication_jours'
+                         ]]
     return mp_clean
