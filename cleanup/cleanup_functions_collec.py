@@ -19,7 +19,7 @@ def create_collec_staging(collectivities:pd.DataFrame):
 
     ### 1. Remove all columns that contain too many missing values: over 90%
     print(f'drop colummns: {collectivities_clean.shape[1]} columns')
-    del collectivities_clean[['cog_3digits','url_ptf','url_datagouv','id_datagouv','merge','ptf',"Unnamed: 0"]]
+    collectivities_clean.drop(['cog_3digits','url_ptf','url_datagouv','id_datagouv','merge','ptf',"Unnamed: 0"], axis=1, inplace=True)
     print(f' After droping columns : {collectivities_clean.shape[1]} columns')
 
     ### 2. Removing rows where the 'nom', 'type', and 'siren' fields are missing or duplicated.
@@ -46,7 +46,7 @@ def create_collec_staging(collectivities:pd.DataFrame):
 
     ### 5. Population, trancheeffectifsunitelegale
     # clean and recode
-    collectivities["population"] = collectivities["population"].apply(clean_numeros).astype(int)
+    collectivities["population"] = collectivities["population"].apply(clean_numeros).apply(lambda x:int(x) if pd.notna(x) else x)
     collectivities["trancheeffectifsunitelegale"] = collectivities["trancheeffectifsunitelegale"].apply(lambda x: int(x) if pd.notna(x) else x)
 
     ### 6. effectifssup50
