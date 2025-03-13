@@ -52,10 +52,12 @@ def create_collec_staging(collectivities:pd.DataFrame):
     ### 6. effectifssup50
     # type bool
     collectivities["effectifssup50"] = collectivities["effectifssup50"].astype(bool)
+    
+    ### 7. rename columns 
+    collectivities_clean = collectivities_clean.rename(columns={"code_departement": "code_dept"})
 
-    ### 7. Todo 
-    # transforme code_departement to list or delete exinsting list
-    # rename columns
+    ### to do
+    # transforme code_dept to list or delete exinsting list
     
     return collectivities_clean
 
